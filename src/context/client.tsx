@@ -1,14 +1,27 @@
-import * as React from 'react';
-import { createContext } from 'react';
 import PocketBase from 'pocketbase';
+import React, { createContext, useMemo } from 'react';
+import { StorageService } from '../services/storage';
+import type { ClientContextType, ClientProviderProps } from '../types';
 
-export const ClientContext = createContext<PocketBase | null>(null);
+export const ClientContext = createContext<ClientContextType | null>(null);
+export function ClientProvider({ children, serverURL }: ClientProviderProps) {
+  const client = useMemo(() => {
+    const pocketbase = new PocketBase(serverURL);
 
-export type ClientProviderProps = {
-  children: React.ReactNode;
-  client: PocketBase;
-};
+    pocketbase.authStore.onChange(async () => {
+      await StorageService.set(
+        StorageService.Constants.COOKIE,
+        pocketbase.authStore.exportToCookie(),
+      );
+    });
 
-export const ClientProvider = (props: ClientProviderProps) => {
-  return <ClientContext.Provider value={props.client}>{props.children}</ClientContext.Provider>;
-};
+    StorageService.get(StorageService.Constants.COOKIE).then((cookie) => {
+      if (!cookie) return;
+      client.authStore.loadFromCookie(cookie);
+    });
+
+    return pocketbase;
+  }, [serverURL]);
+
+  return <ClientContext.Provider value={{ client }}>{children}</ClientContext.Provider>;
+}

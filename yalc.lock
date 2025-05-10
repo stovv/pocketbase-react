@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@stovv/pocketbase-react": {
+      "version": "1.0.0",
+      "file": true
+    }
+  }
+}

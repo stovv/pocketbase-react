@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-03-26
+
+### Added
+- New `useConnectionStatus` hook for connection state tracking
+- New hooks for record management: `useRecord`, `useCollection`
+- Added documentation in `docs/` directory
+- Added connection state context `ConnectionStatusContext`
+- TypeScript types for all components and hooks
+
+### Changed
+- Completely reworked data storage architecture using Redux
+- Updated all dependencies to latest versions
+- Improved performance through memoization
+- Renamed `usePocketBase` hook to `useClient`
+- Reorganized file structure for better maintainability
+
+### Removed
+- Removed deprecated hooks: `useAppContent`, `useAuth`, `useClientContext`
+- Removed unused interfaces and types
+
 ## [0.1.5] - 2022-10-10
 
 ### Changed
