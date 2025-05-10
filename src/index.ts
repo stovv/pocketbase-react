@@ -1,4 +1,3 @@
+export { PocketBaseProvider } from './context';
 export * from './hooks';
-export * from './interfaces';
-export * from './context';
-export * from './store';
+export * from './types';

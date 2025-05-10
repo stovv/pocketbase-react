@@ -1,112 +1,112 @@
-import * as React from 'react';
-import { createContext } from 'react';
-import { useClientContext } from '../hooks/useClientContext';
-import { StorageService } from '../service/Storage';
-import { AuthProviderInfo } from 'pocketbase';
+import React, { createContext, useEffect, useState } from 'react';
+import type { AuthProviderInfo } from 'pocketbase';
+import { useClient } from '../hooks';
+import { StorageService } from '../services/storage';
+import type { AuthActions, AuthProviderProps } from '../types';
 
+export const AuthContext = createContext<AuthActions | null>(null);
 
-export type RegisterWithEmailType = (email: string, password: string) => Promise<void>;
-export type SignInWithEmailType = (email: string, password: string) => Promise<void>;
-export type SignInWithProviderType = (provider: string) => Promise<void>;
-export type SubmitProviderResultType = (url: string) => Promise<void>;
-export type SignOutType = () => void;
-export type SendPasswordResetEmailType = (email: string) => Promise<void>;
-export type SendEmailVerificationType = (email: string) => Promise<void>;
-export type UpdateProfileType = (id: string, record: {}) => Promise<void>;
-export type UpdateEmailType = (email: string) => Promise<void>;
-export type DeleteUserType = (id: string) => Promise<void>;
-
-export interface AuthActions {
-  registerWithEmail: RegisterWithEmailType;
-  signInWithEmail: SignInWithEmailType;
-  signInWithProvider: SignInWithProviderType;
-  submitProviderResult: SubmitProviderResultType;
-  signOut: SignOutType;
-  sendPasswordResetEmail: SendPasswordResetEmailType;
-  sendEmailVerification: SendEmailVerificationType;
-  updateProfile: UpdateProfileType;
-  updateEmail: UpdateEmailType;
-  deleteUser: DeleteUserType;
-}
-
-export const AuthContext = createContext<AuthActions>({} as AuthActions);
-
-export type AuthProviderProps = {
-  children: React.ReactNode;
-  webRedirectUrl: string;
-  mobileRedirectUrl: string;
-  openURL: (url: string) => Promise<void>;
-};
-
-export const AuthProvider = (props: AuthProviderProps) => {
-  const client = useClientContext();
-  const [authProviders, setAuthProviders] = React.useState<AuthProviderInfo[]>();
+export function AuthProvider({
+  children,
+  webRedirectUrl,
+  mobileRedirectUrl,
+}: AuthProviderProps) {
+  const client = useClient();
+  const [authProviders, setAuthProviders] = useState<AuthProviderInfo[]>();
 
   const actions: AuthActions = {
     registerWithEmail: async (email, password) => {
-      await client?.collection('users').create({
+      await client.collection('users').create({
         email: email,
         password: password,
         passwordConfirm: password,
       });
     },
-    signInWithEmail: async (email: string, password: string) => {
-      await client?.collection('users').authWithPassword(email, password);
+    signInWithEmail: async (email, password) => {
+      await client.collection('users').authWithPassword(email, password);
     },
-    signInWithProvider: async (provider: string) => {
+    signInWithProvider: async (provider, openURL) => {
       const authProvider = authProviders?.find((p) => p.name === provider);
       const redirectURL =
-        typeof document !== 'undefined' ? props.webRedirectUrl : props.mobileRedirectUrl;
+        typeof document !== 'undefined' ? webRedirectUrl : mobileRedirectUrl;
+
+      if (!redirectURL) {
+        console.warn('Web redirect url or mobile redirect url is empty', {
+          webRedirectUrl,
+          mobileRedirectUrl,
+        });
+        return;
+      }
+
       const url = authProvider?.authURL + redirectURL;
+
       await StorageService.set('provider', JSON.stringify(authProviders));
-      await props.openURL(url);
+      await openURL(url);
     },
-    submitProviderResult: async (url: string) => {
-      const params = new URLSearchParams(url.split('?')[1]);
+    submitProviderResult: async (urlOrParams) => {
+      const params = new URLSearchParams(
+        typeof urlOrParams === 'string' ? urlOrParams.split('?')[1] : urlOrParams,
+      );
       const code = params.get('code');
       const state = params.get('state');
       const providersString = await StorageService.get('provider');
+      const redirectURL =
+        typeof document !== 'undefined' ? webRedirectUrl : mobileRedirectUrl;
+
+      if (!redirectURL) {
+        console.warn('Web redirect url or mobile redirect url is empty', {
+          webRedirectUrl,
+          mobileRedirectUrl,
+        });
+        return;
+      }
+
       if (providersString) {
         const providers = JSON.parse(providersString) as AuthProviderInfo[];
         const authProvider = providers?.find((p) => p.state === state);
         if (authProvider && code) {
           await client
-            ?.collection('users')
+            .collection('users')
             .authWithOAuth2Code(
               authProvider.name,
               code,
               authProvider.codeVerifier,
-              typeof document !== 'undefined' ? props.webRedirectUrl : props.mobileRedirectUrl
+              redirectURL,
             );
         }
       }
     },
     signOut: () => {
-      client?.authStore.clear();
+      client.authStore.clear();
     },
-    sendPasswordResetEmail: async (email: string) => {
-      await client?.collection('users').requestPasswordReset(email);
+    sendPasswordResetEmail: async (email) => {
+      await client.collection('users').requestPasswordReset(email);
     },
-    sendEmailVerification: async (email: string) => {
-      await client?.collection('users').requestVerification(email);
+    sendEmailVerification: async (email) => {
+      await client.collection('users').requestVerification(email);
     },
-    updateProfile: async (id: string, record: {}) => {
-      await client?.collection('profiles').update(id, record);
+    updateProfile: async (id, record) => {
+      await client.collection('profiles').update(id, record);
     },
-    updateEmail: async (email: string) => {
-      await client?.collection('users').requestEmailChange(email);
+    updateEmail: async (email) => {
+      await client.collection('users').requestEmailChange(email);
     },
-    deleteUser: async (id: string) => {
-      await client?.collection('users').delete(id);
+    deleteUser: async (id) => {
+      await client.collection('users').delete(id);
     },
   };
 
-  React.useEffect(() => {
-    (async () => {
-      const methods = await client?.collection('users').listAuthMethods();
-      setAuthProviders(methods?.oauth2?.providers ?? []);
-    })();
-  }, [props.webRedirectUrl, props.mobileRedirectUrl]);
+  useEffect(() => {
+    client
+      .collection('users')
+      .listAuthMethods()
+      .then((methods) => {
+        setAuthProviders(methods?.oauth2?.providers ?? []);
+      })
+      .catch(() => {
+        // TODO: Add catch error
+      });
+  }, [client]);
 
-  return <AuthContext.Provider value={actions}>{props.children}</AuthContext.Provider>;
-};
+  return <AuthContext.Provider value={actions}>{children}</AuthContext.Provider>;
+}

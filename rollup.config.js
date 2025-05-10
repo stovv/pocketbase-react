@@ -47,7 +47,7 @@ if (env === 'production') {
         unsafe_comps: true,
         warnings: false,
       },
-    })
+    }),
   );
 }
 

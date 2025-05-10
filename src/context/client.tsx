@@ -1,14 +1,10 @@
-import * as React from 'react';
-import { createContext } from 'react';
+import React, { createContext, useMemo } from 'react';
 import PocketBase from 'pocketbase';
+import type { ClientProviderProps, PocketBaseContextType } from '../types';
 
-export const ClientContext = createContext<PocketBase | null>(null);
+export const ClientContext = createContext<PocketBaseContextType | null>(null);
+export function ClientProvider({ children, serverURL }: ClientProviderProps) {
+  const client = useMemo(() => new PocketBase(serverURL), [serverURL]);
 
-export type ClientProviderProps = {
-  children: React.ReactNode;
-  client: PocketBase;
-};
-
-export const ClientProvider = (props: ClientProviderProps) => {
-  return <ClientContext.Provider value={props.client}>{props.children}</ClientContext.Provider>;
-};
+  return <ClientContext.Provider value={{ client }}>{children}</ClientContext.Provider>;
+}
