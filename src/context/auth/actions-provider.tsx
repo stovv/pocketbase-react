@@ -1,9 +1,13 @@
+import type { AuthProviderInfo } from 'pocketbase';
 import React from 'react';
-import { AuthActions, AuthActionsProviderProps, AuthProviderProps } from '../../types';
 import { useEffect, useMemo, useState } from 'react';
 import { useClient, useIsConnected } from '../../hooks';
-import type { AuthProviderInfo } from 'pocketbase';
 import { StorageService } from '../../services/storage';
+import {
+  type AuthActions,
+  type AuthActionsProviderProps,
+  AuthProviderProps,
+} from '../../types';
 import { AuthActionsContext } from './context';
 
 export function AuthActionsProvider({
@@ -120,7 +124,7 @@ export function AuthActionsProvider({
         await client.collection('users').delete(id);
       },
     }),
-    [],
+    [client, authProviders, webRedirectUrl, mobileRedirectUrl],
   );
 
   return (
