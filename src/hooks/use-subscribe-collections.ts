@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
-import { useLibDispatch } from '../store';
+import { useDispatch } from '../store';
 import { actions } from '../store';
 import { prepareOptions } from '../utils';
 import { useClient } from './use-client';
+import { useIsConnected } from './use-connection-status';
 import { useFieldMap } from './use-field-map';
-import { useConnectionStatus } from './use-connection-status';
 
 export const useSubscribeToCollection = (collection: string) => {
   const client = useClient();
-  const isConnected = useConnectionStatus();
+  const isConnected = useIsConnected();
   const { expand, fileFields } = useFieldMap(collection);
-  const dispatch = useLibDispatch();
+  const dispatch = useDispatch();
 
   /**
    * Subscribe for updates

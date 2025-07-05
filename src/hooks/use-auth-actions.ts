@@ -1,12 +1,9 @@
 import { useContext } from 'react';
-import { AuthContext } from '../context/auth/context';
+import { AuthActionsContext } from '../context/auth/context';
 
-export function useAuthActions() {
-  const context = useContext(AuthContext);
+// Gets only auth actions without user auth data
+export const useAuthActions = () => {
+  const context = useContext(AuthActionsContext);
 
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-
-  return context;
-}
+  return context?.actions;
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FC, ReactNode } from 'react';
-import { useLibSelector } from '../../store';
+import { useSelector } from '../../store';
 import { subscriptionsSelector } from '../../store/selectors';
 import type { SubscribeModel } from '../../types';
 import { CollectionSubscription } from './collection';
@@ -8,7 +8,7 @@ import { SubscriptionsContext } from './context';
 import { RecordSubscription } from './record';
 
 const SubscriptionsManager = () => {
-  const { collections, records } = useLibSelector(subscriptionsSelector);
+  const { collections, records } = useSelector(subscriptionsSelector);
 
   return (
     <>

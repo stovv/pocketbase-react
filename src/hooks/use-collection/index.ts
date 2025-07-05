@@ -1,6 +1,6 @@
 import type { BaseModel } from 'pocketbase';
 import { useEffect } from 'react';
-import { actions, useLibDispatch, useLibSelector } from '../../store';
+import { actions, useDispatch, useSelector } from '../../store';
 import { resolvedCollectionSelector } from '../../store/selectors';
 import type { CollectionOptions } from '../../types';
 import { useActions } from '../use-actions';
@@ -13,7 +13,7 @@ export const useCollection = <RecordModel extends BaseModel = BaseModel>(
   options?: CollectionOptions,
 ) => {
   const client = useClient();
-  const dispatch = useLibDispatch();
+  const dispatch = useDispatch();
   const { realtime = true, ...baseOptions } = options ?? {};
   const collectionActions = useActions(collection);
   const { expand, fileFields } = useFieldMap(collection);
@@ -30,7 +30,7 @@ export const useCollection = <RecordModel extends BaseModel = BaseModel>(
 
   // Filtered and sorted data
   const data =
-    (useLibSelector(
+    (useSelector(
       resolvedCollectionSelector({
         collection,
         expand,

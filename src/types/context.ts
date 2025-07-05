@@ -19,6 +19,8 @@ export type ConnectionContextType = {
   isInitialized: boolean;
 };
 
+export type ConnectionStatus = 'initialize' | 'connected' | 'disconnected';
+
 export type ConnectionStatusProviderProps = {
   children: ReactNode;
   checkInterval?: number; // check interval in milliseconds
@@ -27,8 +29,11 @@ export type ConnectionStatusProviderProps = {
 /** Типы для аутентификации */
 export type AuthContextType = {
   id: string | null;
-  actions: AuthActions;
   isSigned: boolean | null;
+};
+
+export type AuthActionsContextType = {
+  actions: AuthActions;
 };
 
 export type AuthActions = {
@@ -51,6 +56,10 @@ export type AuthActions = {
 };
 
 export type AuthProviderProps = {
+  children: React.ReactNode;
+};
+
+export type AuthActionsProviderProps = {
   children: React.ReactNode;
   webRedirectUrl?: string;
   mobileRedirectUrl?: string;

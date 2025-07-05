@@ -56,7 +56,7 @@ const resolveExpandData = (
   if (!expandData || !target || path.length === 0) return;
 
   const [current, ...rest] = path;
-  
+
   if (!expandData[current]) return;
 
   // Обрабатываем текущий уровень
@@ -64,7 +64,7 @@ const resolveExpandData = (
     target[current] = expandData[current].map((item: any) => {
       const { expand: itemExpand, ...itemData } = item;
       const resolved = cloneDeep(itemData);
-      
+
       // Рекурсивно обрабатываем вложенные expand
       if (rest.length > 0 && itemExpand) {
         resolveExpandData(resolved, itemExpand, rest, client, fileFields);
@@ -75,7 +75,7 @@ const resolveExpandData = (
   } else {
     const { expand: currentExpand, ...currentData } = expandData[current];
     target[current] = cloneDeep(currentData);
-    
+
     if (rest.length > 0 && currentExpand) {
       resolveExpandData(target[current], currentExpand, rest, client, fileFields);
     }

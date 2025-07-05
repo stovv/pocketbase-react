@@ -1,11 +1,21 @@
 import { useContext } from 'react';
 import { ConnectionStatusContext } from '../context/connection-status';
+import { ConnectionStatus } from '../types';
 
-export function useConnectionStatus() {
+export function useConnectionStatus(): ConnectionStatus {
   const context = useContext(ConnectionStatusContext);
-  return !!context?.isConnected && !!context?.isInitialized;
+
+  if (!context?.isInitialized) {
+    return 'initialize';
+  }
+
+  return !!context?.isConnected ? 'connected' : 'disconnected';
 }
 
+export const useIsConnected = () => {
+  const connectionStatus = useConnectionStatus();
+  return connectionStatus === 'connected';
+};
 
 export const useConnectionStatusContext = () => {
   const context = useContext(ConnectionStatusContext);
@@ -13,5 +23,5 @@ export const useConnectionStatusContext = () => {
   return {
     isInitialized: !!context?.isInitialized,
     isConnected: !!context?.isConnected,
-  }
-}
+  };
+};

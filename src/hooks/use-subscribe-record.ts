@@ -2,20 +2,19 @@ import { useEffect, useState } from 'react';
 import { useClient } from './use-client';
 
 import type { BaseModel } from 'pocketbase';
-import { useLibDispatch } from '../store';
-import { actions } from '../store/actions';
+import { actions, useDispatch } from '../store';
 import { prepareOptions } from '../utils';
+import { useIsConnected } from './use-connection-status';
 import { useFieldMap } from './use-field-map';
-import { useConnectionStatus } from './use-connection-status';
 
 export const useSubscribeToRecord = <RecordModel extends BaseModel>(
   collection: string,
   id: string | null,
 ) => {
-  const isConnected = useConnectionStatus();
+  const isConnected = useIsConnected();
   const client = useClient();
   const { expand, fileFields } = useFieldMap(collection);
-  const dispatch = useLibDispatch();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!client || !id || !isConnected) return;

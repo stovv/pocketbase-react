@@ -1,6 +1,6 @@
 import React from 'react';
 import { createContext, useEffect, useState } from 'react';
-import { useClient } from '../hooks/use-client';
+import { useClient } from '../hooks';
 import type { ConnectionContextType, ConnectionStatusProviderProps } from '../types';
 
 export const ConnectionStatusContext = createContext<ConnectionContextType | null>(null);
@@ -9,14 +9,16 @@ export function ConnectionStatusProvider({
   children,
   checkInterval: seconds = 30, // default check every 30 seconds
 }: ConnectionStatusProviderProps) {
-  const checkInterval = seconds * 1000;
+  // external hooks
   const client = useClient();
+  const checkInterval = seconds * 1000;
+
+  // local state
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   useEffect(() => {
     const checkConnection = () => {
-      console.log('Check connection');
       client.health
         .check()
         .then(() => {

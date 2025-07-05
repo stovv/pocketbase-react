@@ -1,12 +1,16 @@
 import React from 'react';
 import type { FC } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
+
+/* Store and types */
 import { store } from '../store';
 import type { PocketBaseProviderProps } from '../types';
-import { AuthProvider } from './auth';
+
+/* Context's */
+import { AuthActionsProvider, AuthProvider } from './auth';
 import { ClientProvider } from './client';
-import { ConnectionStatusProvider } from './connection-status';
 import { Subscriptions } from './subscriptions';
+import { ConnectionStatusProvider } from './connection-status';
 
 export const Pocketbase: FC<PocketBaseProviderProps> = ({
   children,
@@ -21,11 +25,13 @@ export const Pocketbase: FC<PocketBaseProviderProps> = ({
       <ConnectionStatusProvider checkInterval={connectionCheckInterval}>
         <ReduxProvider store={store}>
           <Subscriptions fieldsMap={fieldsMap}>
-            <AuthProvider
-              webRedirectUrl={webRedirectUrl}
-              mobileRedirectUrl={mobileRedirectUrl}
-            >
-              {children}
+            <AuthProvider>
+              <AuthActionsProvider
+                webRedirectUrl={webRedirectUrl}
+                mobileRedirectUrl={mobileRedirectUrl}
+              >
+                {children}
+              </AuthActionsProvider>
             </AuthProvider>
           </Subscriptions>
         </ReduxProvider>

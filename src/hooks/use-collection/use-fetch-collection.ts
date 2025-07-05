@@ -1,19 +1,19 @@
 import type { BaseModel } from 'pocketbase';
 import { useEffect, useState } from 'react';
-import { useLibDispatch } from '../../store';
+import { useDispatch } from '../../store';
 import { actions } from '../../store';
 import type { UseFetchCollectionProps } from '../../types';
 import { prepareOptions } from '../../utils';
 import { useClient } from '../use-client';
-import { useConnectionStatus } from '../use-connection-status';
+import { useIsConnected } from '../use-connection-status';
 
 export const useFetchCollection = <RecordModel extends BaseModel = BaseModel>(
   collection: string,
   { expand, sort, filter, limit }: UseFetchCollectionProps,
 ) => {
   const client = useClient();
-  const isConnected = useConnectionStatus();
-  const dispatch = useLibDispatch();
+  const isConnected = useIsConnected();
+  const dispatch = useDispatch();
 
   // Loadings state
   const [isLoading, setIsLoading] = useState(false);
@@ -63,11 +63,11 @@ export const useFetchCollection = <RecordModel extends BaseModel = BaseModel>(
 
         // Save filter ids
         setFilteredIds(filter ? items.map((item) => item.id) : null);
-
-        setIsLoading(false);
       })
       .catch((e) => {
         setError(e);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, [client, collection, page, limit, expand, sort, filter, isConnected]);

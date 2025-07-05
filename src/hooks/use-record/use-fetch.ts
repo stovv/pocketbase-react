@@ -1,11 +1,11 @@
 import type { BaseModel } from 'pocketbase';
 import { useEffect, useState } from 'react';
-import { useLibDispatch } from '../../store';
+import { useDispatch } from '../../store';
 import { actions } from '../../store';
 import type { SubscribeFieldMap } from '../../types';
 import { prepareOptions } from '../../utils';
 import { useClient } from '../use-client';
-import { useConnectionStatus } from '../use-connection-status';
+import { useIsConnected } from '../use-connection-status';
 
 export const useFetch = <RecordModel extends BaseModel>(
   collection: string,
@@ -13,8 +13,8 @@ export const useFetch = <RecordModel extends BaseModel>(
   { expand }: SubscribeFieldMap,
 ) => {
   const client = useClient();
-  const isConnected = useConnectionStatus();
-  const dispatch = useLibDispatch();
+  const isConnected = useIsConnected();
+  const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setInitialized] = useState(false);
@@ -36,10 +36,11 @@ export const useFetch = <RecordModel extends BaseModel>(
             record: data,
           }),
         );
-        setIsLoading(false);
       })
       .catch((e) => {
         setError(e);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, [client, collection, id, isConnected]);
