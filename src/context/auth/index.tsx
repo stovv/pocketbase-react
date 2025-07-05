@@ -4,6 +4,7 @@ import { useClient } from '../../hooks/use-client';
 import { StorageService } from '../../services/storage';
 import type { AuthActions, AuthProviderProps } from '../../types';
 import { AuthContext } from './context';
+import { useConnectionStatus } from '../../hooks/use-connection-status';
 
 export function AuthProvider({
   children,
@@ -11,6 +12,7 @@ export function AuthProvider({
   mobileRedirectUrl,
 }: AuthProviderProps) {
   const client = useClient();
+  const isConnected = useConnectionStatus();
   const [id, setUserId] = useState<string | null>(null);
   const [isSigned, setIsSigned] = useState<boolean | null>(null);
   const [authProviders, setAuthProviders] = useState<AuthProviderInfo[]>();
@@ -49,7 +51,7 @@ export function AuthProvider({
     signInWithEmail: async (email, password) => {
       await client.collection('users').authWithPassword(email, password);
     },
-    signInWithProvider: async (provider, openURL) => {
+    signInWithProvider: async (provider, openURL, domainReplace) => {
       const authProvider = authProviders?.find((p) => p.name === provider);
       const redirectURL =
         typeof document !== 'undefined' ? webRedirectUrl : mobileRedirectUrl;
@@ -62,10 +64,17 @@ export function AuthProvider({
         return;
       }
 
-      const url = authProvider?.authURL + redirectURL;
+      try {
+        const url = new URL(authProvider?.authURL + redirectURL);
+        if (domainReplace) {
+          url.host = domainReplace;
+        }
 
-      await StorageService.set('provider', JSON.stringify(authProviders));
-      await openURL(url);
+        await StorageService.set('provider', JSON.stringify(authProviders));
+        await openURL(url.toString());
+      } catch (e) {
+        console.error('Broken url', e);
+      }
     },
     submitProviderResult: async (urlOrParams) => {
       const params = new URLSearchParams(
@@ -121,16 +130,18 @@ export function AuthProvider({
   };
 
   useEffect(() => {
+    if (!isConnected) return;
+
     client
       .collection('users')
       .listAuthMethods()
       .then((methods) => {
         setAuthProviders(methods?.oauth2?.providers ?? []);
       })
-      .catch(() => {
-        // TODO: Add catch error
+      .catch((e) => {
+        console.error('Error list auth providers', e);
       });
-  }, [client]);
+  }, [client, isConnected]);
 
   return (
     <AuthContext.Provider

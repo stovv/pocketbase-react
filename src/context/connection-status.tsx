@@ -11,10 +11,12 @@ export function ConnectionStatusProvider({
 }: ConnectionStatusProviderProps) {
   const checkInterval = seconds * 1000;
   const client = useClient();
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkConnection = async () => {
+    const checkConnection = () => {
+      console.log('Check connection');
       client.health
         .check()
         .then(() => {
@@ -22,17 +24,21 @@ export function ConnectionStatusProvider({
         })
         .catch(() => {
           setIsConnected(false);
+        })
+        .finally(() => {
+          setIsInitialized(true);
         });
     };
 
     checkConnection();
-
     const interval = setInterval(checkConnection, checkInterval);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [client, checkInterval]);
 
   return (
-    <ConnectionStatusContext.Provider value={{ isConnected }}>
+    <ConnectionStatusContext.Provider value={{ isConnected, isInitialized }}>
       {children}
     </ConnectionStatusContext.Provider>
   );

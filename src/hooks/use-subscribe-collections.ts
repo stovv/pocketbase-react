@@ -4,9 +4,11 @@ import { actions } from '../store';
 import { prepareOptions } from '../utils';
 import { useClient } from './use-client';
 import { useFieldMap } from './use-field-map';
+import { useConnectionStatus } from './use-connection-status';
 
 export const useSubscribeToCollection = (collection: string) => {
   const client = useClient();
+  const isConnected = useConnectionStatus();
   const { expand, fileFields } = useFieldMap(collection);
   const dispatch = useLibDispatch();
 
@@ -15,7 +17,7 @@ export const useSubscribeToCollection = (collection: string) => {
    * */
   useEffect(() => {
     // Wait for client available, skip if not initialized or loading
-    if (!client) return;
+    if (!client || !isConnected) return;
 
     // Subscribe for all topics in collection
     client.collection(collection).subscribe(
@@ -49,5 +51,5 @@ export const useSubscribeToCollection = (collection: string) => {
       // Unsubscribe on unmount/restart useEffect
       client.collection(collection).unsubscribe('*');
     };
-  }, [client, expand, fileFields]);
+  }, [client, expand, fileFields, isConnected]);
 };

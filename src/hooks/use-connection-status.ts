@@ -3,8 +3,15 @@ import { ConnectionStatusContext } from '../context/connection-status';
 
 export function useConnectionStatus() {
   const context = useContext(ConnectionStatusContext);
-  if (!context) {
-    throw new Error('useConnectionStatus must be used within a PocketBaseProvider');
+  return !!context?.isConnected && !!context?.isInitialized;
+}
+
+
+export const useConnectionStatusContext = () => {
+  const context = useContext(ConnectionStatusContext);
+
+  return {
+    isInitialized: !!context?.isInitialized,
+    isConnected: !!context?.isConnected,
   }
-  return context.isConnected;
 }

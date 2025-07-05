@@ -5,6 +5,7 @@ import { actions } from '../../store';
 import type { SubscribeFieldMap } from '../../types';
 import { prepareOptions } from '../../utils';
 import { useClient } from '../use-client';
+import { useConnectionStatus } from '../use-connection-status';
 
 export const useFetch = <RecordModel extends BaseModel>(
   collection: string,
@@ -12,6 +13,7 @@ export const useFetch = <RecordModel extends BaseModel>(
   { expand }: SubscribeFieldMap,
 ) => {
   const client = useClient();
+  const isConnected = useConnectionStatus();
   const dispatch = useLibDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +22,7 @@ export const useFetch = <RecordModel extends BaseModel>(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!client || !id) return;
+    if (!client || !id || !isConnected) return;
     setInitialized(true);
 
     client
@@ -40,7 +42,7 @@ export const useFetch = <RecordModel extends BaseModel>(
         setError(e);
         setIsLoading(false);
       });
-  }, [client, collection, id]);
+  }, [client, collection, id, isConnected]);
 
   return {
     isLoading,

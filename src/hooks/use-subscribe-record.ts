@@ -6,17 +6,19 @@ import { useLibDispatch } from '../store';
 import { actions } from '../store/actions';
 import { prepareOptions } from '../utils';
 import { useFieldMap } from './use-field-map';
+import { useConnectionStatus } from './use-connection-status';
 
 export const useSubscribeToRecord = <RecordModel extends BaseModel>(
   collection: string,
   id: string | null,
 ) => {
+  const isConnected = useConnectionStatus();
   const client = useClient();
   const { expand, fileFields } = useFieldMap(collection);
   const dispatch = useLibDispatch();
 
   useEffect(() => {
-    if (!client || !id) return;
+    if (!client || !id || !isConnected) return;
 
     client.collection(collection).subscribe<RecordModel>(
       id,
@@ -47,5 +49,5 @@ export const useSubscribeToRecord = <RecordModel extends BaseModel>(
     return () => {
       client.collection(collection).unsubscribe(id);
     };
-  }, [id, client, expand, fileFields]);
+  }, [id, client, expand, fileFields, isConnected]);
 };

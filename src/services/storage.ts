@@ -16,6 +16,9 @@ export class StorageService {
     if (typeof document !== 'undefined') {
       return localStorage.setItem(key, value);
     } else {
+      if (!value) {
+        return await AsyncStorage.removeItem(key);
+      }
       return await AsyncStorage.setItem(key, value);
     }
   }

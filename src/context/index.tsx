@@ -18,18 +18,18 @@ export const Pocketbase: FC<PocketBaseProviderProps> = ({
 }) => {
   return (
     <ClientProvider serverURL={serverURL}>
-      <ReduxProvider store={store}>
-        <Subscriptions fieldsMap={fieldsMap}>
-          <ConnectionStatusProvider checkInterval={connectionCheckInterval}>
+      <ConnectionStatusProvider checkInterval={connectionCheckInterval}>
+        <ReduxProvider store={store}>
+          <Subscriptions fieldsMap={fieldsMap}>
             <AuthProvider
               webRedirectUrl={webRedirectUrl}
               mobileRedirectUrl={mobileRedirectUrl}
             >
               {children}
             </AuthProvider>
-          </ConnectionStatusProvider>
-        </Subscriptions>
-      </ReduxProvider>
+          </Subscriptions>
+        </ReduxProvider>
+      </ConnectionStatusProvider>
     </ClientProvider>
   );
 };

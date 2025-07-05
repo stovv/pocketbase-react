@@ -21,7 +21,6 @@ const resolveNestedField = (
     remainingParts: string[],
   ) => {
     if (Array.isArray(target)) {
-      // Если текущий элемент - массив, обрабатываем каждый элемент с теми же оставшимися частями пути
       target.forEach((item) => processObject(item, remainingParts));
       return;
     }
@@ -31,12 +30,10 @@ const resolveNestedField = (
     }
 
     if (remainingParts.length === 1) {
-      // Если это последняя часть пути, применяем setValue
       setValue(target, remainingParts[0]);
       return;
     }
 
-    // Для промежуточных частей пути
     const [current, ...rest] = remainingParts;
     if (target[current]) {
       processObject(target[current], rest);
@@ -47,10 +44,49 @@ const resolveNestedField = (
 };
 
 /**
+ * Рекурсивно резолвит expand данные
+ */
+const resolveExpandData = (
+  target: any,
+  expandData: any,
+  path: string[],
+  client: Client,
+  fileFields: FileFields,
+) => {
+  if (!expandData || !target || path.length === 0) return;
+
+  const [current, ...rest] = path;
+  
+  if (!expandData[current]) return;
+
+  // Обрабатываем текущий уровень
+  if (Array.isArray(expandData[current])) {
+    target[current] = expandData[current].map((item: any) => {
+      const { expand: itemExpand, ...itemData } = item;
+      const resolved = cloneDeep(itemData);
+      
+      // Рекурсивно обрабатываем вложенные expand
+      if (rest.length > 0 && itemExpand) {
+        resolveExpandData(resolved, itemExpand, rest, client, fileFields);
+      }
+
+      return resolved;
+    });
+  } else {
+    const { expand: currentExpand, ...currentData } = expandData[current];
+    target[current] = cloneDeep(currentData);
+    
+    if (rest.length > 0 && currentExpand) {
+      resolveExpandData(target[current], currentExpand, rest, client, fileFields);
+    }
+  }
+};
+
+/**
  * Резолвит relations и file fields в записи PocketBase
  * @param record - Запись из PocketBase
  * @param expand - Массив путей для резолва relations (например: ['relation', 'other.relation.subrelation'])
- * @param fileFields - Объект с полями файлов для резолва, поддерживает пути и массивы (например: ['users.avatar'] или ['users.avatars'])
+ * @param fileFields - Объект с полями файлов для резолва, поддерживает пути и массивы
  * @param client - Инстанс PocketBase для получения URL файлов
  */
 export const resolveRecord = <T extends BaseModelWithExpand = BaseModelWithExpand>(
@@ -59,28 +95,13 @@ export const resolveRecord = <T extends BaseModelWithExpand = BaseModelWithExpan
   fileFields: FileFields = { single: [], multiple: [] },
   client: Client,
 ): Omit<T, 'expand'> => {
-  // Создаем копию записи без поля expand
   const { expand: expandData, ...resolvedRecord } = record;
   const result = cloneDeep(resolvedRecord) as any;
 
-  // Резолвим relations
-  for (const path of expand) {
-    const parts = path.split('.');
-    let current = expandData;
-    let target = result;
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!current?.[part]) break;
-
-      if (i === parts.length - 1) {
-        target[part] = cloneDeep(current[part]);
-      } else {
-        target[part] = target[part] || {};
-        target = target[part];
-        current = (current[part] as Record<string, any>)?.expand;
-      }
-    }
+  // Резолвим relations для каждого пути expand
+  for (const expandPath of expand) {
+    const parts = expandPath.split('.');
+    resolveExpandData(result, expandData, parts, client, fileFields);
   }
 
   // Резолвим single file fields

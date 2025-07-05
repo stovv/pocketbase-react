@@ -5,12 +5,14 @@ import { actions } from '../../store';
 import type { UseFetchCollectionProps } from '../../types';
 import { prepareOptions } from '../../utils';
 import { useClient } from '../use-client';
+import { useConnectionStatus } from '../use-connection-status';
 
 export const useFetchCollection = <RecordModel extends BaseModel = BaseModel>(
   collection: string,
   { expand, sort, filter, limit }: UseFetchCollectionProps,
 ) => {
   const client = useClient();
+  const isConnected = useConnectionStatus();
   const dispatch = useLibDispatch();
 
   // Loadings state
@@ -28,7 +30,7 @@ export const useFetchCollection = <RecordModel extends BaseModel = BaseModel>(
 
   // Fetch data
   useEffect(() => {
-    if (!client) return;
+    if (!client || !isConnected) return;
     setIsLoading(true);
     setInitialized(true);
 
@@ -68,7 +70,7 @@ export const useFetchCollection = <RecordModel extends BaseModel = BaseModel>(
         setError(e);
         setIsLoading(false);
       });
-  }, [client, collection, page, limit, expand, sort, filter]);
+  }, [client, collection, page, limit, expand, sort, filter, isConnected]);
 
   return {
     total,

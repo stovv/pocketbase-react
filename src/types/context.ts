@@ -15,7 +15,8 @@ export type ClientProviderProps = {
 
 /** Типы для статуса подключения */
 export type ConnectionContextType = {
-  isConnected: boolean;
+  isConnected: boolean | null;
+  isInitialized: boolean;
 };
 
 export type ConnectionStatusProviderProps = {
@@ -36,6 +37,7 @@ export type AuthActions = {
   signInWithProvider: (
     provider: string,
     openURL: (url: string) => Promise<void>,
+    domainReplace?: string,
   ) => Promise<void>;
   submitProviderResult: (
     urlOrParams: string | { code: string; state: string },
