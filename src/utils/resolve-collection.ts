@@ -1,4 +1,4 @@
-import type { Client, FileFields } from '../types';
+import type { Client, SubscribeFieldMap } from '../types';
 import type { BaseModelWithExpand } from '../types/store';
 import { resolveRecord } from './resolve-record';
 
@@ -13,7 +13,7 @@ import { resolveRecord } from './resolve-record';
 export const resolveCollection = <T extends BaseModelWithExpand = BaseModelWithExpand>(
   records: (T | null)[],
   expand: string[] = [],
-  fileFields: FileFields = { single: [], multiple: [] },
+  fileFields: SubscribeFieldMap['fileFields'],
   client: Client,
 ): Array<Omit<T, 'expand'> | null> => {
   return records.map((record) =>

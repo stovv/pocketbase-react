@@ -1,5 +1,5 @@
 import cloneDeep from 'lodash.clonedeep';
-import type { Client, FileFields } from '../types';
+import type { Client, SubscribeFieldMap } from '../types';
 import type { BaseModelWithExpand } from '../types/store';
 import { resolveFileUrl } from './resolve-file-url';
 
@@ -51,7 +51,6 @@ const resolveExpandData = (
   expandData: any,
   path: string[],
   client: Client,
-  fileFields: FileFields,
 ) => {
   if (!expandData || !target || path.length === 0) return;
 
@@ -67,7 +66,7 @@ const resolveExpandData = (
 
       // Рекурсивно обрабатываем вложенные expand
       if (rest.length > 0 && itemExpand) {
-        resolveExpandData(resolved, itemExpand, rest, client, fileFields);
+        resolveExpandData(resolved, itemExpand, rest, client);
       }
 
       return resolved;
@@ -77,7 +76,7 @@ const resolveExpandData = (
     target[current] = cloneDeep(currentData);
 
     if (rest.length > 0 && currentExpand) {
-      resolveExpandData(target[current], currentExpand, rest, client, fileFields);
+      resolveExpandData(target[current], currentExpand, rest, client);
     }
   }
 };
@@ -92,7 +91,7 @@ const resolveExpandData = (
 export const resolveRecord = <T extends BaseModelWithExpand = BaseModelWithExpand>(
   record: T,
   expand: string[] = [],
-  fileFields: FileFields = { single: [], multiple: [] },
+  fileFields: SubscribeFieldMap['fileFields'],
   client: Client,
 ): Omit<T, 'expand'> => {
   const { expand: expandData, ...resolvedRecord } = record;
@@ -101,24 +100,29 @@ export const resolveRecord = <T extends BaseModelWithExpand = BaseModelWithExpan
   // Резолвим relations для каждого пути expand
   for (const expandPath of expand) {
     const parts = expandPath.split('.');
-    resolveExpandData(result, expandData, parts, client, fileFields);
+    resolveExpandData(result, expandData, parts, client);
   }
 
   // Резолвим single file fields
   for (const field of fileFields?.single ?? []) {
-    resolveNestedField(result, field, (target, key) => {
+    const { key: fieldKey, options } =
+      typeof field === 'string' ? { key: field, options: {} } : field;
+    resolveNestedField(result, fieldKey, (target, key) => {
       if (target[key]) {
-        target[key] = resolveFileUrl(client, target, target[key]);
+        target[key] = resolveFileUrl(client, target, target[key], options);
       }
     });
   }
 
   // Резолвим multiple file fields
   for (const field of fileFields?.multiple ?? []) {
-    resolveNestedField(result, field, (target, key) => {
+    const { key: fieldKey, options } =
+      typeof field === 'string' ? { key: field, options: {} } : field;
+
+    resolveNestedField(result, fieldKey, (target, key) => {
       if (Array.isArray(target[key])) {
         target[key] = target[key].map((file: string) =>
-          resolveFileUrl(client, target, file),
+          resolveFileUrl(client, target, file, options),
         );
       }
     });

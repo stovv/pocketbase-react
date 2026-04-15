@@ -16,6 +16,7 @@ export const useRecord = <RecordModel extends BaseModel = BaseModel>(
   const fieldMap = useFieldMap(collection);
   const collectionAction = useActions(collection);
   const dispatch = useDispatch();
+  // TODO: prevent double fetching
   const { isLoading, isError, error, isInitialized } = useFetch(collection, id, fieldMap);
   const isDeleted = useSelector(isRecordDeletedSelector(collection, id));
 

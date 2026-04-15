@@ -2058,30 +2058,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stovv/pocketbase-react@file:.yalc/@stovv/pocketbase-react::locator=%40stovv%2Fpocketbase-react%40workspace%3A.":
-  version: 1.0.0
-  resolution: "@stovv/pocketbase-react@file:.yalc/@stovv/pocketbase-react#.yalc/@stovv/pocketbase-react::hash=39191a&locator=%40stovv%2Fpocketbase-react%40workspace%3A."
-  dependencies:
-    "@react-native-async-storage/async-storage": "npm:^2.1.2"
-    "@reduxjs/toolkit": "npm:^2.8.0"
-    crypto: "npm:1.0.1"
-    deepmerge: "npm:4.3.1"
-    lodash.clonedeep: "npm:4.5.0"
-    lodash.omit: "npm:^4.5.0"
-    pocketbase: "npm:^0.26.0"
-    react: "npm:^18.2.0"
-    react-dom: "npm:^18.2.0"
-    react-fast-compare: "npm:^3.2.2"
-    react-redux: "npm:^9.0.0"
-    redux-persist: "npm:^6.0.0"
-  peerDependencies:
-    pocketbase: ^0.26.0
-    react: ^18.3.1
-    react-dom: ^18.3.1
-  checksum: 10/5d287f2bde55d942fe8f4e27b5d52c6fcd33b0fe1acd53d08938d28ba3fe6bc18fd19bbaf5d7af61544960105b0aeb3bab62e3fc77a7af076cfd98b5a28b9e93
-  languageName: node
-  linkType: hard
-
 "@stovv/pocketbase-react@workspace:.":
   version: 0.0.0-use.local
   resolution: "@stovv/pocketbase-react@workspace:."
@@ -2103,7 +2079,6 @@ __metadata:
     "@rollup/plugin-commonjs": "npm:^15.1.0"
     "@rollup/plugin-node-resolve": "npm:^9.0.0"
     "@rollup/plugin-replace": "npm:^2.3.3"
-    "@stovv/pocketbase-react": "file:.yalc/@stovv/pocketbase-react"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/react": "npm:^16.3.0"
@@ -2120,7 +2095,7 @@ __metadata:
     jsdom: "npm:^26.1.0"
     lodash.clonedeep: "npm:4.5.0"
     lodash.omit: "npm:^4.5.0"
-    pocketbase: "npm:^0.26.0"
+    pocketbase: "npm:^0.26.5"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-fast-compare: "npm:^3.2.2"
@@ -2131,7 +2106,7 @@ __metadata:
     typescript: "npm:^4.3.4"
     vitest: "npm:^3.1.3"
   peerDependencies:
-    pocketbase: ^0.26.0
+    pocketbase: ^0.26.5
     react: ^18.3.1
     react-dom: ^18.3.1
   languageName: unknown
@@ -5021,10 +4996,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pocketbase@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "pocketbase@npm:0.26.0"
-  checksum: 10/25ffb7be9f4868d2dea6ef4b8ba72019df32c76410b7115497c583585fafc26618e96d2ad613f56a9cea8a224687d04ef30b0b965eba64b4cf1fd2a838ae4ca9
+"pocketbase@npm:^0.26.5":
+  version: 0.26.5
+  resolution: "pocketbase@npm:0.26.5"
+  checksum: 10/dc8dde3d5df7c84ff36b5dc6f12cb763efd07ddf2ef365ab49f025e72709c8f7782639329ebf0845503623909be09ca4233e3cc6528104208d5453b626a846cc
   languageName: node
   linkType: hard
 

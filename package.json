@@ -1,6 +1,6 @@
 {
   "name": "@stovv/pocketbase-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Unofficial React SDK (React, React Native, Expo) for interacting with the PocketBase JS SDK",
   "keywords": [
     "pocketbase",
@@ -26,7 +26,12 @@
   "types": "es/index.d.ts",
   "unpkg": "dist/pocketbase-react.js",
   "module": "es/index.js",
-  "files": ["dist", "lib", "src", "es"],
+  "files": [
+    "dist",
+    "lib",
+    "src",
+    "es"
+  ],
   "scripts": {
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --extensions \".js,.ts,.tsx\" --out-dir lib",
     "build:es": "babel src --extensions \".js,.ts,.tsx\" --out-dir es",
@@ -48,7 +53,7 @@
     "format": "biome format --write ./src"
   },
   "peerDependencies": {
-    "pocketbase": "^0.26.0",
+    "pocketbase": "^0.26.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -92,7 +97,7 @@
     "deepmerge": "4.3.1",
     "lodash.clonedeep": "4.5.0",
     "lodash.omit": "^4.5.0",
-    "pocketbase": "^0.26.0",
+    "pocketbase": "^0.26.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-fast-compare": "^3.2.2",

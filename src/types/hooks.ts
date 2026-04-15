@@ -1,11 +1,10 @@
-import type { SubscribeFieldMap } from './context';
-import type { BaseModelWithExpand } from './store';
+import type { FileOptions } from 'pocketbase';
 
 /** Базовые типы для расширений и файловых полей */
 export type ExpandType = string[];
 export type FileFields = {
-  single?: string[];
-  multiple?: string[];
+  single?: (string | { key: string; options: FileOptions })[];
+  multiple?: (string | { key: string; options: FileOptions })[];
 };
 
 /** Типы для хуков аутентификации */
